@@ -1,0 +1,20 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "admin",
+  "password": "admin",
+  "database": "nestapp",
+  "entities": [
+    "**/*.entity{.ts,.js}"
+  ],
+  "migrationsTableName": "migration",
+  "migrations": [
+    "db/migration/*.ts"
+  ],
+  "cli": {
+    "migrationsDir": "db/migration"
+  },
+  "logging": true,
+  "ssl": false
+}

@@ -1,0 +1,11 @@
+version: "3"
+services:
+  nestapp_db:
+    image: "postgres:11"
+    container_name: "nestapp_database"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: "admin"
