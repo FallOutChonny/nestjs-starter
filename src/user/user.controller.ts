@@ -22,7 +22,7 @@ import * as qs from 'qs'
 import ErrorDto from '@/models/error.dto'
 import UserService from './user.service'
 import UserDto from './user.dto'
-import UserEntity from './user.entity'
+import User from './user.entity'
 
 @ApiTags('使用者管理')
 @Controller('users')
@@ -51,7 +51,7 @@ export default class UserController {
 
   @Post()
   @ApiOperation({ summary: '新增使用者' })
-  @ApiOkResponse({ type: UserEntity })
+  @ApiOkResponse({ type: User })
   @ApiUnauthorizedResponse({ description: '沒有權限', type: ErrorDto })
   @ApiBadRequestResponse({ description: '前端參數錯誤', type: ErrorDto })
   @ApiInternalServerErrorResponse({ description: '伺服器錯誤', type: ErrorDto })
