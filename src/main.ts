@@ -35,6 +35,8 @@ async function bootstrap() {
     logger: consola,
   })
 
+  app.setGlobalPrefix('/api/v1')
+
   SwaggerModule.setup(
     '/',
     app,
@@ -75,8 +77,6 @@ async function bootstrap() {
 
     app.use(csurf({ cookie: true }))
   }
-
-  app.setGlobalPrefix('/api/v1')
 
   app.useGlobalPipes(new ValidationPipe())
 
