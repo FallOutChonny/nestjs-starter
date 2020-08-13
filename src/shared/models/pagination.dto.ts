@@ -1,10 +1,28 @@
 import { ApiProperty } from '@nestjs/swagger'
 
+/**
+ * 從前端傳來的 Query 參數是 page, pageSize，經過 PaginationMiddleware 處理後
+ * 會轉為 take 和 skip，這兩個參數可以直接餵給 typeORM
+ *
+ * Example:
+ *
+ * this._repoistory.findAll({ take, skip })
+ */
 export class PaginationDto {
   take: number
   skip: number
 }
 
+/**
+ * 帶有分頁資料的回傳JSON格式
+ *
+ * {
+ *   data: [],
+ *   page: 1,
+ *   pageSize: 10,
+ *   total: 0
+ * }
+ */
 export class PaginationResponseDto<T = any> {
   @ApiProperty({
     description: '資料列',
