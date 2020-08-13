@@ -14,6 +14,7 @@ import config from './app.config'
       autoLoadEntities: true,
       synchronize: false,
       migrationsRun: false,
+      logging: false,
       entities: ['dist/**/*.entity.{ts,js}'],
       migrations: ['dist/db/migrations/*.ts'],
       cli: {
