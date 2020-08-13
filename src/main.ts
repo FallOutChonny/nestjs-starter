@@ -7,9 +7,10 @@ import * as cookieParser from 'cookie-parser'
 import * as session from 'express-session'
 import * as compression from 'compression'
 import * as rateLimit from 'express-rate-limit'
-import consola from 'consola'
+import LoggerInterceptor from '@/interceptors/logger.interceptor'
 import AppModule from './app.module'
 import config from './app.config'
+const consola = require('consola')
 
 declare const module: any
 
@@ -47,6 +48,8 @@ async function bootstrap() {
         .build(),
     ),
   )
+
+  app.useGlobalInterceptors(new LoggerInterceptor())
 
   app.use(compression())
 

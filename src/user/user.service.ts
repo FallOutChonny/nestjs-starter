@@ -5,9 +5,9 @@ import {
   Logger,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, FindManyOptions } from 'typeorm'
-import User from '@user/user.entity'
-import UserDto from '@user/user.dto'
+import { Repository, Like } from 'typeorm'
+import { UserDto, SearchUserDto } from './user.dto'
+import User from './user.entity'
 
 @Injectable()
 export default class UserService {
@@ -41,18 +41,16 @@ export default class UserService {
   }
 
   public async updateUser(user: Partial<UserDto>): Promise<User> {
-    const { id, email } = user
-
     let exist
     try {
-      exist = await this._userRepository.findOne(id)
+      exist = await this._userRepository.findOne(user.id)
     } catch (error) {
       Logger.error(error)
       throw new InternalServerErrorException('Error while updating user')
     }
 
     if (!exist) {
-      throw new BadRequestException(`${email} not exists`)
+      throw new BadRequestException(`使用者不存在`)
     }
 
     await this._userRepository.update(user.id, user)
@@ -68,10 +66,21 @@ export default class UserService {
     return this._userRepository.findOne(userId)
   }
 
-  public async searchUsers(
-    options: FindManyOptions,
-  ): Promise<[User[], number]> {
-    return await this._userRepository.findAndCount(options)
+  public async searchUsers({
+    keyword = '',
+    ...options
+  }: SearchUserDto): Promise<[User[], number]> {
+    const keywordLike = Like(`%${keyword}%`)
+
+    return await this._userRepository.findAndCount({
+      ...options,
+      where: [
+        { email: keywordLike },
+        { username: keywordLike },
+        { firstName: keywordLike },
+        { lastName: keywordLike },
+      ],
+    })
   }
 
   public prepareUserModel(user: User) {

@@ -1,24 +1,18 @@
-import { Module } from '@nestjs/common'
-import { APP_FILTER } from '@nestjs/core'
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import PaginationMiddleware from '@/middlewares/pagination.middleware'
 import UserModule from '@user/user.module'
 import AuthModule from '@auth/auth.module'
-import HttpExceptionFilter from '@/interceptors/http-exception.interceptor'
 import config from './app.config'
 
 @Module({
-  providers: [
-    {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
-    },
-  ],
   imports: [
     AuthModule,
     UserModule,
     TypeOrmModule.forRoot({
       ...config.ormconfig,
       autoLoadEntities: true,
+      synchronize: false,
       migrationsRun: false,
       entities: ['dist/**/*.entity.{ts,js}'],
       migrations: ['dist/db/migrations/*.ts'],
@@ -29,7 +23,10 @@ import config from './app.config'
   ],
 })
 export default class AppModule {
-  // configure(consumer: MiddlewareConsumer): MiddlewareConsumer | void {
-  //   consumer.apply(cookieParser(), ...middleware).forRoutes('/')
-  // }
+  configure(consumer: MiddlewareConsumer): MiddlewareConsumer | void {
+    consumer.apply(PaginationMiddleware).forRoutes(
+      { path: 'users', method: RequestMethod.GET },
+      // { path: '/products', method: RequestMethod.GET },
+    )
+  }
 }
