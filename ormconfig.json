@@ -1,20 +1,45 @@
-{
-  "type": "postgres",
-  "host": "localhost",
-  "port": 5432,
-  "username": "admin",
-  "password": "admin",
-  "database": "nestapp",
-  "entities": [
-    "**/*.entity{.ts,.js}"
-  ],
-  "migrationsTableName": "migration",
-  "migrations": [
-    "db/migration/*.ts"
-  ],
-  "cli": {
-    "migrationsDir": "db/migration"
+[
+  {
+    "type": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "username": "admin",
+    "password": "admin",
+    "database": "nestapp",
+    "keepConnectionAlive": true,
+    "entities": [
+      "src/**/*.entity.{ts,js}"
+    ],
+    "migrationsTableName": "migration",
+    "migrations": [
+      "db/migrations/*.ts"
+    ],
+    "cli": {
+      "migrationsDir": "db/migrations"
+    },
+    "logging": true,
+    "ssl": false
   },
-  "logging": true,
-  "ssl": false
-}
+  {
+    "type": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "username": "admin",
+    "password": "admin",
+    "database": "nestapp",
+    "keepConnectionAlive": true,
+    "entities": [
+      "src/**/*.entity.{ts,js}"
+    ],
+    "migrationsTableName": "migration",
+    "migrations": [
+      "db/seeds/*.ts"
+    ],
+    "cli": {
+      "migrationsDir": "db/seeds"
+    },
+    "logging": true,
+    "ssl": false,
+    "name": "seed"
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "http.proxy": "",
+  "http.proxyAuthorization": null,
+  "http.proxyStrictSSL": false,
+  "editor.tabSize": 2
+}

@@ -58,7 +58,7 @@ class ConfigService {
   }
 
   public get port() {
-    return this.getValue('PORT', true)
+    return this.getValue('PORT', false) || 3000
   }
 
   public get isDev() {
@@ -72,24 +72,19 @@ class ConfigService {
   public get ormconfig(): TypeOrmModuleOptions {
     return {
       type: 'postgres',
-
       host: this.getValue('POSTGRES_HOST'),
       port: parseInt(this.getValue('POSTGRES_PORT')),
       username: this.getValue('POSTGRES_USERNAME'),
       password: this.getValue('POSTGRES_PASSWORD'),
       database: this.getValue('POSTGRES_DATABASE'),
-
-      entities: ['**/*.entity{.ts,.js}'],
-
+      keepConnectionAlive: true,
+      entities: ['src/**/*.entity.{ts,js}'],
       migrationsTableName: 'migration',
-      migrations: ['db/migration/*.ts'],
-
+      migrations: ['db/migrations/*.ts'],
       cli: {
-        migrationsDir: 'db/migration',
+        migrationsDir: 'db/migrations',
       },
-
       logging: true,
-
       ssl: this.isProd,
     }
   }

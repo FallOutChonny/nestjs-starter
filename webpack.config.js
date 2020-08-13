@@ -1,6 +1,9 @@
+const path = require('path')
 const webpack = require('webpack')
 const nodeExternals = require('webpack-node-externals')
 const StartServerPlugin = require('start-server-webpack-plugin')
+
+const resolveApp = relativePath => path.resolve(__dirname, relativePath)
 
 module.exports = function (options) {
   return {
@@ -18,5 +21,13 @@ module.exports = function (options) {
       new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/]),
       new StartServerPlugin({ name: options.output.filename }),
     ],
+    resolve: {
+      ...options.resolve,
+      alias: {
+        ...options.resolve.alias,
+        '@': resolveApp('src/shared'),
+        '@user': resolveApp('src/user'),
+      },
+    },
   }
 }
