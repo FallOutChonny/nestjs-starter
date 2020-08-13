@@ -10,13 +10,13 @@ import * as rateLimit from 'express-rate-limit'
 import LoggerInterceptor from '@/interceptors/logger.interceptor'
 import AppModule from './app.module'
 import config from './app.config'
-const consola = require('consola')
 
 declare const module: any
 
 const whitelist = [
-  'http://127.0.0.1:3000', // dev
-  'http://localhost:3000', // dev
+  'http://127.0.0.1:3000',
+  'http://localhost:3000',
+  'https://postwoman.io',
 ]
 
 async function bootstrap() {
@@ -32,7 +32,7 @@ async function bootstrap() {
       methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH', 'OPTIONS'],
       credentials: true,
     },
-    logger: consola,
+    logger: true,
   })
 
   app.setGlobalPrefix('/api/v1')
