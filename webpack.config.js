@@ -2,13 +2,27 @@ const path = require('path')
 const webpack = require('webpack')
 const nodeExternals = require('webpack-node-externals')
 const StartServerPlugin = require('start-server-webpack-plugin')
+const { pathOr, compose, head } = require('ramda')
 
-const resolveApp = relativePath => path.resolve(__dirname, relativePath)
+const resolveApp = (relativePath) => path.resolve(__dirname, relativePath)
 
 module.exports = function (options) {
   return {
     ...options,
     entry: ['webpack/hot/poll?100', options.entry],
+    module: {
+      ...options.module,
+      rules: [
+        {
+          ...compose(head, pathOr([], ['module', 'rules']))(options),
+          use: [
+            'cache-loader',
+            'thread-loader',
+            ...compose(path(['use']), head, pathOr([], ['module', 'rules']))(options),
+          ],
+        },
+      ],
+    },
     watch: true,
     externals: [
       nodeExternals({
