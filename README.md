@@ -12,15 +12,9 @@ $ yarn install
 
 ### Database
 
-postgres 的環境已經用 docker 包起來了，所以要先下載 docker 並安裝
+postgres 的環境已經用 docker 包起來了，所以要先到官網下載和安裝 docker，安裝後也要記得把 docker 打開
 
-再來因為使用 typeorm 做 ORM，所以還要建立 ormconfig.json 來設置 DB 連接資訊
-
-```bash
-$ yarn run build:ormconfig
-```
-
-這兩個步驟做完就可以輸入下面兩個指令啟動/停止資料庫
+這個步驟做完就可以輸入下面兩個指令啟動/停止資料庫
 
 ```bash
 # start
@@ -30,7 +24,15 @@ $ yarn run start:db
 $ yarn run stop:db
 ```
 
-初次使用時要先執行一次 `migration:run` 產生會用到的資料表
+初次使用時要先執行一次 `$ yarn run migration:run` 產生 DB 會用到的資料表
+
+再來因為使用 typeorm 做 ORM，所以還要建立 ormconfig.json 來設置 DB 連接資訊
+
+```bash
+$ yarn run build:ormconfig
+```
+
+NOTE: 當 `src/app.config.ts` 的 TypeOrmConfig 設定有異動時，也要記得重新產生新的 ormconfig.json
 
 ### DB migrations
 
