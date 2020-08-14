@@ -2,45 +2,54 @@ const path = require('path')
 const webpack = require('webpack')
 const nodeExternals = require('webpack-node-externals')
 const StartServerPlugin = require('start-server-webpack-plugin')
-const { pathOr, compose, head } = require('ramda')
+const { pathOr, compose, head, path: Rpath } = require('ramda')
 
 const resolveApp = (relativePath) => path.resolve(__dirname, relativePath)
+
+const isDev = process.env.NODE_ENV === 'development'
 
 module.exports = function (options) {
   return {
     ...options,
-    entry: ['webpack/hot/poll?100', options.entry],
+    bail: true,
+    entry: isDev ? ['webpack/hot/poll?100', options.entry] : options.entry,
     module: {
-      ...options.module,
       rules: [
         {
-          ...compose(head, pathOr([], ['module', 'rules']))(options),
+          test: /.tsx?$/,
           use: [
             'cache-loader',
-            'thread-loader',
-            ...compose(path(['use']), head, pathOr([], ['module', 'rules']))(options),
+            // get properties of module.rules[0].use 
+            ...compose(Rpath(['use']), head, pathOr([], ['module', 'rules']))(options),
           ],
+          exclude: /node_modules/,
         },
       ],
     },
-    watch: true,
+    watch: isDev,
+    devtool: isDev ? false : 'source-map',
+    mode: isDev ? 'none' : 'production',
     externals: [
       nodeExternals({
-        allowlist: ['webpack/hot/poll?100'],
+        allowlist: isDev ? ['webpack/hot/poll?100'] : [],
       }),
     ],
     plugins: [
       ...options.plugins,
-      new webpack.HotModuleReplacementPlugin(),
-      new webpack.NamedModulesPlugin(),
       new webpack.WatchIgnorePlugin([/\.js$/, /\.d\.ts$/]),
-      new StartServerPlugin({ name: options.output.filename }),
+      ...(isDev
+        ? [
+            new webpack.NamedModulesPlugin(),
+            new webpack.HotModuleReplacementPlugin(),
+            new StartServerPlugin({ name: options.output.filename }),
+          ]
+        : []),
     ],
     resolve: {
       ...options.resolve,
       alias: {
-        ...options.resolve.alias,
         '@': resolveApp('src/shared'),
+        '@auth': resolveApp('src/auth'),
         '@user': resolveApp('src/user'),
       },
     },

@@ -1,15 +1,15 @@
 import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
+import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import * as csurf from 'csurf'
-import * as helmet from 'helmet'
 import * as cookieParser from 'cookie-parser'
-import * as session from 'express-session'
 import * as compression from 'compression'
 import * as rateLimit from 'express-rate-limit'
 import LoggerInterceptor from '@/interceptors/logger.interceptor'
 import AppModule from './app.module'
 import config from './app.config'
+const helmet = require('helmet')
 
 declare const module: any
 
@@ -20,7 +20,7 @@ const whitelist = [
 ]
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
       origin: (origin, callback) => {
         if (whitelist.indexOf(origin) > -1) {
@@ -32,10 +32,16 @@ async function bootstrap() {
       methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH', 'OPTIONS'],
       credentials: true,
     },
-    logger: true,
+    // enable logger will break the app on production.
+    ...(config.isDev ? { logger: true } : {}),
   })
 
   app.setGlobalPrefix('/api/v1')
+
+  // see https://expressjs.com/en/guide/behind-proxies.html
+  app.set('trust proxy', 1)
+
+  app.disable('X-Powered-By')
 
   SwaggerModule.setup(
     '/',
@@ -66,17 +72,7 @@ async function bootstrap() {
 
   app.use(cookieParser())
 
-  if (process.env.NODE_ENV === 'production') {
-    app.use(
-      session({
-        secret: 'keyboard cat',
-        resave: false,
-        saveUninitialized: false,
-      }),
-    )
-
-    app.use(csurf({ cookie: true }))
-  }
+  app.use(csurf({ cookie: true }))
 
   app.useGlobalPipes(new ValidationPipe())
 
