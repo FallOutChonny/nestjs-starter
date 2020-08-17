@@ -3,6 +3,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm'
 export class CreateUserTable1596552235819 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
+    await queryRunner.query(`DROP TYPE IF EXISTS gender`)
     await queryRunner.query(
       `CREATE TYPE gender AS ENUM ('male', 'female', 'other');`,
     )
