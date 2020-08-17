@@ -51,6 +51,7 @@ module.exports = function (options) {
         '@': resolveApp('src/shared'),
         '@auth': resolveApp('src/auth'),
         '@user': resolveApp('src/user'),
+        '@role': resolveApp('src/role'),
       },
     },
   }

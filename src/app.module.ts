@@ -3,12 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import PaginationMiddleware from '@/middlewares/pagination.middleware'
 import UserModule from '@user/user.module'
 import AuthModule from '@auth/auth.module'
+import RoleModule from '@role/role.module'
 import config from './app.config'
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
+    RoleModule,
     TypeOrmModule.forRoot({
       ...config.ormconfig,
       autoLoadEntities: true,
@@ -25,9 +27,11 @@ import config from './app.config'
 })
 export default class AppModule {
   configure(consumer: MiddlewareConsumer): MiddlewareConsumer | void {
-    consumer.apply(PaginationMiddleware).forRoutes(
-      { path: 'users', method: RequestMethod.GET },
-      // { path: '/products', method: RequestMethod.GET },
-    )
+    consumer
+      .apply(PaginationMiddleware)
+      .forRoutes(
+        { path: '/users', method: RequestMethod.GET },
+        { path: '/roles', method: RequestMethod.GET },
+      )
   }
 }
