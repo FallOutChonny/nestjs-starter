@@ -11,7 +11,8 @@
     "paths": {
       "@/*": ["src/shared/*"],
       "@user/*": ["src/user/*"],
-      "@auth/*": ["src/auth/*"]
+      "@auth/*": ["src/auth/*"],
+      "@role/*": ["src/role/*"]
     }
   }
 }
