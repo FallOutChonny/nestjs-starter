@@ -21,6 +21,12 @@ export default class ErrorResponseDto {
   })
   public message: string | string[]
 
-  @ApiProperty({ description: '錯誤類型', example: 'Bad Request' })
-  public error: string
+  @ApiProperty({ example: new Date().toISOString() })
+  public timestamp: string
+
+  @ApiProperty({ example: 'POST' })
+  public method: string
+
+  @ApiProperty({ example: '/api/v1/users' })
+  public path: string
 }

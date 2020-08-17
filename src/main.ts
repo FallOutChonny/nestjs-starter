@@ -1,15 +1,20 @@
-import { NestFactory } from '@nestjs/core'
-import { ValidationPipe } from '@nestjs/common'
+import { NestFactory, Reflector } from '@nestjs/core'
+import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { ValidationError } from 'class-validator'
 import * as csurf from 'csurf'
 import * as cookieParser from 'cookie-parser'
 import * as compression from 'compression'
 import * as rateLimit from 'express-rate-limit'
 import LoggerInterceptor from '@/interceptors/logger.interceptor'
+import ValidationFilter from '@/filters/validation.filter'
+import HttpExceptionFilter from '@/filters/http-exception.filter'
 import AppModule from './app.module'
 import config from './app.config'
+import ValidationException from '@/exceptions/validation.exception'
 const helmet = require('helmet')
+const consola = require('consola')
 
 declare const module: any
 
@@ -23,11 +28,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
       origin: (origin, callback) => {
-        if (whitelist.indexOf(origin) > -1) {
-          callback(null, true)
-        } else {
-          callback(null, false)
-        }
+        callback(null, whitelist.includes(origin))
       },
       methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH', 'OPTIONS'],
       credentials: true,
@@ -37,10 +38,8 @@ async function bootstrap() {
   })
 
   app.setGlobalPrefix('/api/v1')
-
   // see https://expressjs.com/en/guide/behind-proxies.html
   app.set('trust proxy', 1)
-
   app.disable('X-Powered-By')
 
   SwaggerModule.setup(
@@ -57,12 +56,25 @@ async function bootstrap() {
     ),
   )
 
-  app.useGlobalInterceptors(new LoggerInterceptor())
+  app.useGlobalInterceptors(
+    new LoggerInterceptor(),
+    new ClassSerializerInterceptor(app.get(Reflector)),
+  )
+  app.useGlobalFilters(new HttpExceptionFilter(), new ValidationFilter())
+  app.useGlobalPipes(
+    new ValidationPipe({
+      skipMissingProperties: true,
+      exceptionFactory: (errors: ValidationError[]) => {
+        const message = errors.map(
+          (error) => `${Object.values(error.constraints).join(', ')}`,
+        )
+        return new ValidationException(message)
+      },
+    }),
+  )
 
   app.use(compression())
-
   app.use(helmet())
-
   app.use(
     rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
@@ -72,11 +84,13 @@ async function bootstrap() {
 
   app.use(cookieParser())
 
-  app.use(csurf({ cookie: true }))
-
-  app.useGlobalPipes(new ValidationPipe())
+  if (config.isProd) {
+    app.use(csurf({ cookie: true }))
+  }
 
   await app.listen(config.port)
+
+  consola.success(`server is running on ${config.port}`)
 
   if (module.hot) {
     module.hot.accept()
