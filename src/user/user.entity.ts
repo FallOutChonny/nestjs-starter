@@ -1,6 +1,8 @@
-import { Column, Entity, Index, BeforeInsert } from 'typeorm'
+import { Column, Entity, Index, BeforeInsert, OneToMany } from 'typeorm'
+import { Exclude } from 'class-transformer'
 import * as bcrypt from 'bcrypt'
 import BaseEntity from '@/models/base.entity'
+import UserRoles from '@/models/user-roles.entity'
 import { Gender } from '@/constants/types'
 
 @Index('PK_cace4a159ff9f2512dd42373760', ['id'], { unique: true })
@@ -17,6 +19,7 @@ export default class Users extends BaseEntity {
   public lastName: string | null
 
   @Column('character varying', { name: 'password' })
+  @Exclude()
   public password: string
 
   @Column('character varying', { name: 'email', unique: true })
@@ -37,6 +40,9 @@ export default class Users extends BaseEntity {
     enum: Object.keys(Gender),
   })
   public gender: Gender | null
+
+  @OneToMany(() => UserRoles, (userRoles) => userRoles.user)
+  userRoles: UserRoles[]
 
   @BeforeInsert()
   async hashPassword() {
