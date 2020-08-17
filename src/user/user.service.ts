@@ -66,6 +66,10 @@ export default class UserService {
     return this._userRepository.findOne(userId)
   }
 
+  public async findUser(where: { [key: string]: any }): Promise<User> {
+    return this._userRepository.findOne({ where })
+  }
+
   public async searchUsers({
     keyword = '',
     ...options
@@ -84,8 +88,6 @@ export default class UserService {
   }
 
   public prepareUserModel(user: User) {
-    const userDto = new UserDto(user)
-
-    return userDto
+    return new UserDto(user)
   }
 }

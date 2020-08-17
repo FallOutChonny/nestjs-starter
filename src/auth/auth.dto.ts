@@ -1,15 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty } from 'class-validator'
+import { UserDto } from '@user/user.dto'
 
-export class LoginDto {
+export class LoginUserDto {
+  @ApiProperty({ description: '使用者信箱' })
+  @IsNotEmpty({ message: '信箱為必填' })
+  public readonly email: string
+
   @ApiProperty({ description: '使用者密碼' })
   @IsNotEmpty({ message: '密碼為必填' })
   public readonly password: string
 }
 
-export class LoginResponseDto {
+export class LoginResponseDto extends UserDto {
   @ApiProperty({ description: 'authorization token' })
-  public readonly token: string
-}
+  public readonly accessToken: string
 
-export class RegisterUserDto {}
+  @ApiProperty({ description: 'token 有效時間' })
+  public readonly expiresIn: string
+}

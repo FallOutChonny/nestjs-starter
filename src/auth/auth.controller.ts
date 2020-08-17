@@ -1,40 +1,45 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  HttpStatus,
-  BadRequestException,
-  UnauthorizedException,
-  Query,
-  NotImplementedException,
-} from '@nestjs/common'
-import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { LoginDto, LoginResponseDto, RegisterUserDto } from './auth.dto'
+import { Controller, Post, Get, Body, UseGuards, Request } from '@nestjs/common'
+import { Request as Req } from 'express'
+import { ApiOkResponse, ApiTags, ApiOperation } from '@nestjs/swagger'
+import { AuthGuard } from '@nestjs/passport'
+import ApiErrorResponse from '@/decorators/error-response.decorator'
+import { UserDto } from '@user/user.dto'
+import UserService from '@user/user.service'
+import { LoginUserDto, LoginResponseDto } from './auth.dto'
+import AuthService from './auth.service'
 
 @ApiTags('使用者驗證')
 @Controller('auth')
 export default class AuthController {
+  constructor(
+    private readonly _authService: AuthService,
+    private readonly _userService: UserService,
+  ) {}
+
   @Post('login')
-  @ApiResponse({ status: HttpStatus.OK, type: LoginResponseDto })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: BadRequestException })
-  async login(@Body() user: LoginDto) {
-    throw new NotImplementedException()
+  @ApiOperation({ summary: '使用者登入' })
+  @ApiOkResponse({ type: LoginResponseDto })
+  @ApiErrorResponse()
+  async login(@Body() user: LoginUserDto): Promise<LoginResponseDto> {
+    return await this._authService.login(user)
   }
 
   @Post('register')
-  @ApiResponse({ status: HttpStatus.OK, type: LoginResponseDto })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, type: UnauthorizedException })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: BadRequestException })
-  async register(@Body() user: RegisterUserDto) {
-    throw new NotImplementedException()
+  @ApiOperation({ summary: '使用者註冊' })
+  @ApiOkResponse({ type: LoginResponseDto })
+  @ApiErrorResponse()
+  async register(@Body() user: UserDto): Promise<LoginResponseDto> {
+    return await this._authService.register(user)
   }
 
   @Get('me')
-  @ApiResponse({ status: HttpStatus.OK, type: LoginResponseDto })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, type: UnauthorizedException })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: BadRequestException })
-  async me(@Query() userId: number) {
-    throw new NotImplementedException()
+  @ApiOperation({ summary: '取得登入者資料' })
+  @ApiOkResponse({ type: LoginResponseDto })
+  @ApiErrorResponse()
+  @UseGuards(AuthGuard())
+  async me(@Request() req: Req): Promise<UserDto> {
+    const user = await this._authService.getLoginUser(req.headers.authorization)
+
+    return this._userService.prepareUserModel(user)
   }
 }
