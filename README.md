@@ -1,6 +1,17 @@
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+這個 starter 已經完成專案的基礎設施例如安全性、日誌、熱更新等等，且實作了角色、使用者管理以及權限管控的相關 API，可以跳過瑣碎的步驟直接開始開發功能
+
+包含功能
+
+* webpack - 開發環境使用，實現熱更新和快取
+* typeorm - 資料庫對應工具
+* postgres - 資料庫
+* nestjs
+* class-validator - 驗證前端傳來的 DTO 物件
+* swagger - API 線上說明文件
+* passport-jwt - 身分認證
+* helemt, csurf, rate-limit - 提升安全性
 
 ## Development
 
@@ -26,7 +37,7 @@ $ yarn run stop:db
 
 初次使用時要先執行一次 `$ yarn run migration:run` 產生 DB 會用到的資料表
 
-再來因為使用 typeorm 做 ORM，所以還要建立 ormconfig.json 來設置 DB 連接資訊
+再來因為使用 typeorm 做資料庫對應，所以還要建立 ormconfig.json 來設置 DB 連接資訊
 
 ```bash
 $ yarn run build:ormconfig
@@ -64,7 +75,7 @@ $ yarn run seed:run
 $ yarn run seed:revert
 ```
 
-### Running the app
+### 執行
 
 ```bash
 # development
@@ -72,8 +83,17 @@ $ yarn run start
 
 # hot-reload mode
 $ yarn run start:dev
+```
 
-# production mode
+啟動後可在 http://localhost:3000/api/v1 看到 swagger，也可點每個api右上角的 `try it out` 按鈕進行測試
+
+### 正式環境打包
+
+```bash
+# bundle code on production mode
+$ yarn run build
+
+# run production mode
 $ yarn run start:prod
 ```
 
